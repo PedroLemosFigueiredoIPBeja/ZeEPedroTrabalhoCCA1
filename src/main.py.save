@@ -1,0 +1,245 @@
+# src/main.py
+import tkinter as tk
+from tkinter import (
+    Tk, StringVar, ttk, filedialog, messagebox, scrolledtext, END
+)
+from pathlib import Path
+
+# Importações dos módulos locfrom .classical_ciphers import (
+    vigenere_encrypt, vigenere_decrypt,
+    playfair_encrypt, playfair_decrypt
+)
+from .modern_ciphers import (
+    des_encrypt, des_decrypt,
+    aes_encrypt, aes_decrypt,
+    get_crypto_backend
+)
+from .file_utils import read_key_text
+
+
+class CryptoApp:
+    def __init__(self, root):
+        self.root = root
+        root.title("Cryptografia - Cifras Clássicas e Modernas")
+
+        # --- Dimensões e centralização da janela ---
+        win_width = 700
+        win_height = 500
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        x = (screen_width // 2) - (win_width // 2)
+        y = (screen_height // 2) - (win_height // 2)
+        root.geometry(f"{win_width}x{win_height}+{x}+{y}")
+
+        # --- (Opcional) Impede redimensionamento ---
+        root.resizable(False, False)
+
+        # --- Cabeçalho e subtítulo ---
+        ttk.Label(root, text="Cryptografia", font=("Segoe UI", 18, "bold")).pack(pady=5)
+        ttk.Label(root, text="Vigenère · PlayFair · DES · AES", font=("Segoe UI", 10)).pack(pady=2)
+
+        # --- Abas principais ---
+        self.notebook = ttk.Notebook(root)
+        self.notebook.pack(fill='both', expand=True, padx=10, pady=10)
+
+        # --- Log inferior ---
+        self.log = scrolledtext.ScrolledText(root, height=8, state='disabled')
+        self.log.pack(fill='x', padx=10, pady=(0,10))
+
+        # --- Inicializa as abas das cifras ---
+        self._vigenere_tab()
+        self._playfair_tab()
+        self._des_tab()
+        self._aes_tab()
+
+        # --- Mostra backend ativo ---
+        backend = get_crypto_backend()
+        self._log(f"Backend criptográfico ativo: {backend}")
+
+    def _log(self, msg):
+        """Adiciona mensagem ao log."""
+        self.log.config(state='normal')
+        self.log.insert(END, msg + "\n")
+        self.log.see(END)
+        self.log.config(state='disabled')
+
+    # ABA VIGENERE
+    def _vigenere_tab(self):
+        frame = ttk.Frame(self.notebook, padding=10)
+        self.notebook.add(frame, text="Vigenère")
+
+        table, key, file_ = StringVar(), StringVar(), StringVar()
+
+        ttk.Button(frame, text="Tabela", command=lambda: table.set(filedialog.askopenfilename())).grid(row=0, column=0)
+        ttk.Entry(frame, textvariable=table, width=70).grid(row=0, column=1, padx=5)
+        ttk.Button(frame, text="Chave", command=lambda: key.set(filedialog.askopenfilename())).grid(row=1, column=0)
+        ttk.Entry(frame, textvariable=key, width=70).grid(row=1, column=1, padx=5)
+        ttk.Button(frame, text="Mensagem", command=lambda: file_.set(filedialog.askopenfilename())).grid(row=2, column=0)
+        ttk.Entry(frame, textvariable=file_, width=70).grid(row=2, column=1, padx=5)
+
+        def enc():
+            try:
+                table_t = Path(table.get()).read_text()
+                key_t = Path(key.get()).read_text().strip()
+                msg = Path(file_.get()).read_text()
+                out = vigenere_encrypt(msg, key_t, table_t)
+                out_path = file_.get() + ".vigenere.enc"
+                Path(out_path).write_text(out)
+                messagebox.showinfo("Sucesso", f"Guardado em {out_path}")
+                self._log(f"Vigenère cifrado -> {out_path}")
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+                self._log(f"Erro Vigenère: {e}")
+
+        def dec():
+            try:
+                table_t = Path(table.get()).read_text()
+                key_t = Path(key.get()).read_text().strip()
+                msg = Path(file_.get()).read_text()
+                out = vigenere_decrypt(msg, key_t, table_t)
+                out_path = file_.get() + ".vigenere.dec"
+                Path(out_path).write_text(out)
+                messagebox.showinfo("Sucesso", f"Guardado em {out_path}")
+                self._log(f"Vigenère decifrado -> {out_path}")
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+                self._log(f"Erro Vigenère: {e}")
+
+        ttk.Button(frame, text="Cifrar", command=enc).grid(row=3, column=0, pady=8)
+        ttk.Button(frame, text="Decifrar", command=dec).grid(row=3, column=1, pady=8)
+
+    # ABA PLAYFAIR
+    def _playfair_tab(self):
+        frame = ttk.Frame(self.notebook, padding=10)
+        self.notebook.add(frame, text="PlayFair")
+
+        table, file_ = StringVar(), StringVar()
+        ttk.Button(frame, text="Tabela", command=lambda: table.set(filedialog.askopenfilename())).grid(row=0, column=0)
+        ttk.Entry(frame, textvariable=table, width=70).grid(row=0, column=1, padx=5)
+        ttk.Button(frame, text="Mensagem", command=lambda: file_.set(filedialog.askopenfilename())).grid(row=1, column=0)
+        ttk.Entry(frame, textvariable=file_, width=70).grid(row=1, column=1, padx=5)
+
+        def enc():
+            try:
+                t = Path(table.get()).read_text()
+                msg = Path(file_.get()).read_text()
+                out = playfair_encrypt(msg, t)
+                out_path = file_.get() + ".playfair.enc"
+                Path(out_path).write_text(out)
+                messagebox.showinfo("Sucesso", f"Guardado em {out_path}")
+                self._log(f"PlayFair cifrado -> {out_path}")
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+                self._log(f"Erro PlayFair: {e}")
+
+        def dec():
+            try:
+                t = Path(table.get()).read_text()
+                msg = Path(file_.get()).read_text()
+                out = playfair_decrypt(msg, t)
+                out_path = file_.get() + ".playfair.dec"
+                Path(out_path).write_text(out)
+                messagebox.showinfo("Sucesso", f"Guardado em {out_path}")
+                self._log(f"PlayFair decifrado -> {out_path}")
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+                self._log(f"Erro PlayFair: {e}")
+
+        ttk.Button(frame, text="Cifrar", command=enc).grid(row=2, column=0, pady=8)
+        ttk.Button(frame, text="Decifrar", command=dec).grid(row=2, column=1, pady=8)
+
+    # ABA DES
+    def _des_tab(self):
+        frame = ttk.Frame(self.notebook, padding=10)
+        self.notebook.add(frame, text="DES")
+
+        key, file_ = StringVar(), StringVar()
+        ttk.Button(frame, text="Chave", command=lambda: key.set(filedialog.askopenfilename())).grid(row=0, column=0)
+        ttk.Entry(frame, textvariable=key, width=70).grid(row=0, column=1, padx=5)
+        ttk.Button(frame, text="Ficheiro (binário)", command=lambda: file_.set(filedialog.askopenfilename())).grid(row=1, column=0)
+        ttk.Entry(frame, textvariable=file_, width=70).grid(row=1, column=1, padx=5)
+
+        def enc():
+            try:
+                k = Path(key.get()).read_text().strip()
+                data = Path(file_.get()).read_bytes()
+                out = des_encrypt(data, k)
+                out_path = file_.get() + ".des.enc"
+                Path(out_path).write_bytes(out)
+                messagebox.showinfo("Sucesso", f"Guardado em {out_path}")
+                self._log(f"DES cifrado -> {out_path}")
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+                self._log(f"Erro DES: {e}")
+
+        def dec():
+            try:
+                k = read_key_text(key.get())
+                data = Path(file_.get()).read_bytes()
+                out = des_decrypt(data, k)
+                out_path = file_.get() + ".des.dec"
+
+                # Tenta gravar como texto UTF-8
+                try:
+                    text = out.decode('utf-8')
+                    Path(out_path).write_text(text, encoding='utf-8')
+                    messagebox.showinfo("Sucesso", f"Mensagem decifrada guardada em {out_path} (texto legível)")
+                except UnicodeDecodeError:
+                    Path(out_path).write_bytes(out)
+                    messagebox.showinfo("Sucesso", f"Ficheiro binário decifrado guardado em {out_path}")
+
+                self._log(f"DES decifrado -> {out_path}")
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+                self._log(f"Erro DES: {e}")
+
+        ttk.Button(frame, text="Cifrar", command=enc).grid(row=2, column=0, pady=8)
+        ttk.Button(frame, text="Decifrar", command=dec).grid(row=2, column=1, pady=8)
+
+    # ABA AES
+    def _aes_tab(self):
+        frame = ttk.Frame(self.notebook, padding=10)
+        self.notebook.add(frame, text="AES")
+
+        key, file_ = StringVar(), StringVar()
+        ttk.Button(frame, text="Chave", command=lambda: key.set(filedialog.askopenfilename())).grid(row=0, column=0)
+        ttk.Entry(frame, textvariable=key, width=70).grid(row=0, column=1, padx=5)
+        ttk.Button(frame, text="Ficheiro (binário)", command=lambda: file_.set(filedialog.askopenfilename())).grid(row=1, column=0)
+        ttk.Entry(frame, textvariable=file_, width=70).grid(row=1, column=1, padx=5)
+
+        def enc():
+            try:
+                k = Path(key.get()).read_text().strip()
+                data = Path(file_.get()).read_bytes()
+                out = aes_encrypt(data, k)
+                out_path = file_.get() + ".aes.enc"
+                Path(out_path).write_bytes(out)
+                messagebox.showinfo("Sucesso", f"Guardado em {out_path}")
+                self._log(f"AES cifrado -> {out_path}")
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+                self._log(f"Erro AES: {e}")
+
+        def dec():
+            try:
+                k = read_key_text(key.get())
+                data = Path(file_.get()).read_bytes()
+                out = aes_decrypt(data, k)
+                out_path = file_.get() + ".aes.dec"
+
+                # Tenta gravar como texto UTF-8
+                try:
+                    text = out.decode('utf-8')
+                    Path(out_path).write_text(text, encoding='utf-8')
+                    messagebox.showinfo("Sucesso", f"Mensagem decifrada guardada em {out_path} (texto legível)")
+                except UnicodeDecodeError:
+                    Path(out_path).write_bytes(out)
+                    messagebox.showinfo("Sucesso", f"Ficheiro binário decifrado guardado em {out_path}")
+
+                self._log(f"AES decifrado -> {out_path}")
+            except Exception as e:
+                messagebox.showerror("Erro", str(e))
+                self._log(f"Erro AES: {e}")
+
+        ttk.Button(frame, text="Cifrar", command=enc).grid(row=2, column=0, pady=8)
+        ttk.Button(frame, text="Decifrar", command=dec).grid(row=2, column=1, pady=8)
