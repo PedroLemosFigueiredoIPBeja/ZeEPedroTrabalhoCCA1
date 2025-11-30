@@ -133,7 +133,8 @@ class CryptoApp:
 
     def _vigenere_encrypt(self, table, key, file_, result_text):
         try:
-            if not all([table.get(), key.get(), file.get()]):
+            print("table")
+            if not all([table.get(), key.get(), file_.get()]):
                 messagebox.showwarning("Aviso", "Selecione todos os ficheiros necessários!")
                 return
 
@@ -145,7 +146,8 @@ class CryptoApp:
             out = vigenere_encrypt(msg, key_t, table_t)
             
             # Salvar resultado
-            out_path = file_.get() + ".vigenere.enc"
+            base, ext = os.path.splitext(file_.get())
+            out_path =  base + "_ViginereCriptogram" + ext
             Path(out_path).write_text(out)
             
             result_text.set(f"✅ Mensagem cifrada: '{out[:30]}...'")
@@ -153,12 +155,12 @@ class CryptoApp:
             self._show_preview(out_path, "Cifrado")
             
         except Exception as e:
-            messagebox.showerror("Erro", f"Erro na cifragem: {str(e)}")
+            messagebox.showerror("Erro", f"Erro na cifragem usando a cifra de Viginère: {str(e)}")
             self._log(f"❌ Erro Vigenère: {e}")
 
     def _vigenere_decrypt(self, table, key, file_, result_text):
         try:
-            if not all([table.get(), key.get(), file.get()]):
+            if not all([table.get(), key.get(), file_.get()]):
                 messagebox.showwarning("Aviso", "Selecione todos os ficheiros necessários!")
                 return
 
@@ -170,7 +172,8 @@ class CryptoApp:
             out = vigenere_decrypt(msg, key_t, table_t)
             
             # Salvar resultado
-            out_path = file_.get() + ".vigenere.dec"
+            base, ext = os.path.splitext(file_.get())
+            out_path =  base + "_ViginereDecypheredMessage" + ext
             Path(out_path).write_text(out)
             
             result_text.set(f"✅ Mensagem decifrada: '{out[:30]}...'")
@@ -178,7 +181,7 @@ class CryptoApp:
             self._show_preview(out_path, "Decifrado")
             
         except Exception as e:
-            messagebox.showerror("Erro", f"Erro na decifragem: {str(e)}")
+            messagebox.showerror("Erro", f"Erro na decifragem usando a cifra de Viginère: {str(e)}")
             self._log(f"❌ Erro Vigenère: {e}")
 
     def _clear_vigenere(self, table, key, file_, result_text):
@@ -221,14 +224,16 @@ class CryptoApp:
                 messagebox.showwarning("Aviso", "Selecione todos os ficheiros necessários!")
                 return
 
-            t = Path(table.get()).read_text()
+            tableText = Path(table.get()).read_text()
             msg = Path(file_.get()).read_text()
             
             self._log("🔄 Iniciando cifragem PlayFair...")
-            out = playfair_encrypt(msg, t)
+            out = playfair_encrypt(msg, tableText)
             
-            out_path = file_.get() + ".playfair.enc"
+            base, ext = os.path.splitext(file_.get())
+            out_path =  base + "PlayfairEncrypted" + ext
             Path(out_path).write_text(out)
+
             
             result_text.set(f"✅ Texto cifrado: '{out}'")
             self._log(f"✅ Cifragem PlayFair concluída: {os.path.basename(out_path)}")
@@ -249,7 +254,8 @@ class CryptoApp:
             self._log("🔄 Iniciando decifragem PlayFair...")
             out = playfair_decrypt(msg, t)
             
-            out_path = file_.get() + ".playfair.dec"
+            base, ext = os.path.splitext(file_.get())
+            out_path =  base + "PlayfairDecrypted" + ext
             Path(out_path).write_text(out)
             
             result_text.set(f"✅ Texto decifrado: '{out}'")
