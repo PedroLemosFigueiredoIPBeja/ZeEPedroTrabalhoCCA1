@@ -6,8 +6,11 @@ def vigenere_encrypt(text: str, key: str, tableText: str):
     """
     Cifra texto usando a cifra de Vigenère.
     """
-    text = text.replace(" ", "").upper()
-    key = key.replace(" ", "").upper()
+    #text = text.replace(" ", "").upper()
+    text = ''.join([c for c in text.upper() if c.isalpha()])
+
+    key = ''.join([c for c in key.upper() if c.isalpha()])
+    #key = key.replace(" ", "").upper()
     tableMatrix = [line.split() for line in tableText.strip().split('\n')]
     header = tableMatrix[0]
     result = []
@@ -21,13 +24,11 @@ def vigenere_encrypt(text: str, key: str, tableText: str):
             # Encontra o index da coluna (baseado no char da mensagem)
             col_idx = header.index(t)
             
-            # The intersection in the Vigenère Square is the encrypted char
             encrypted_char = tableMatrix[row_idx][col_idx]
             print(encrypted_char)
             result.append(encrypted_char)
         else:
-            
-            #result.append(t) #to allow non alphabetic characteres uncomment the this line
+            #result.append(t) #Para não permitir carateres não pertencentes ao alfabeto comentar esta linha
             pass
     return ''.join(result)
 
@@ -38,7 +39,7 @@ def vigenere_decrypt(cipher: str, key: str, table: str):
     """
     tableMatrix = [line.split() for line in table.strip().split('\n')]
     header = tableMatrix[0]
-    key = key.replace(" ", "").upper()
+    key = ''.join([c for c in key.upper() if c.isalpha()])
 
     res = []
     key_seq = (key * ((len(cipher)//len(key)) + 1))[:len(cipher)]
@@ -52,7 +53,8 @@ def vigenere_decrypt(cipher: str, key: str, table: str):
             res.append(decryptedChar)
             pass
         else:
-            res.append(c)
+            #res.append(c)
+            pass
     return ''.join(res)
 
 
