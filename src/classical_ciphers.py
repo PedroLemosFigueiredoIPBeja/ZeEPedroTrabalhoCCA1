@@ -6,10 +6,10 @@ def vigenere_encrypt(text: str, key: str, tableText: str):
     """
     Cifra texto usando a cifra de Vigenère.
     """
-    text = text.replace(" ", "")
+    text = text.replace(" ", "").upper()
+    key = key.replace(" ", "").upper()
     tableMatrix = [line.split() for line in tableText.strip().split('\n')]
     header = tableMatrix[0]
-
     result = []
 
     key_seq = (key * ((len(text)//len(key)) + 1))[:len(text)]
@@ -23,7 +23,12 @@ def vigenere_encrypt(text: str, key: str, tableText: str):
             
             # The intersection in the Vigenère Square is the encrypted char
             encrypted_char = tableMatrix[row_idx][col_idx]
+            print(encrypted_char)
             result.append(encrypted_char)
+        else:
+            
+            #result.append(t) #to allow non alphabetic characteres uncomment the this line
+            pass
     return ''.join(result)
 
 
@@ -33,6 +38,7 @@ def vigenere_decrypt(cipher: str, key: str, table: str):
     """
     tableMatrix = [line.split() for line in table.strip().split('\n')]
     header = tableMatrix[0]
+    key = key.replace(" ", "").upper()
 
     res = []
     key_seq = (key * ((len(cipher)//len(key)) + 1))[:len(cipher)]
@@ -44,6 +50,9 @@ def vigenere_decrypt(cipher: str, key: str, table: str):
             col_id = row.index(c)
             decryptedChar = header[col_id]
             res.append(decryptedChar)
+            pass
+        else:
+            res.append(c)
     return ''.join(res)
 
 
