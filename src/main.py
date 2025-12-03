@@ -22,7 +22,7 @@ from file_utils import read_key_text
 class CryptoApp:
     def __init__(self, root):
         self.root = root
-        root.title("CryptoSuite Pro - Sistema de Criptografia")
+        root.title("Sistema de Criptografia")
         root.configure(bg='#f0f0f0')
 
         # --- Dimensões e centralização da janela ---
@@ -41,9 +41,9 @@ class CryptoApp:
         header_frame = ttk.Frame(root)
         header_frame.pack(fill='x', padx=10, pady=5)
         
-        ttk.Label(header_frame, text="🛡️ CryptoSuite Pro", 
+        ttk.Label(header_frame, text="🛡️ Criptografia", 
                  font=("Segoe UI", 20, "bold"), foreground="#2c3e50").pack(pady=5)
-        ttk.Label(header_frame, text="Sistema Profissional de Criptografia - Vigenère · PlayFair · DES · AES", 
+        ttk.Label(header_frame, text="Sistema académico de Criptografia - Vigenère · PlayFair · DES · AES", 
                  font=("Segoe UI", 10), foreground="#7f8c8d").pack(pady=2)
 
         # --- Abas principais ---
@@ -114,7 +114,7 @@ class CryptoApp:
         # Seletores de arquivo
         self._create_file_selector(frame, 0, "Tabela de caracteres:", table)
         self._create_file_selector(frame, 1, "Ficheiro da chave:", key)
-        self._create_file_selector(frame, 2, "Ficheiro da mensagem:", file_)
+        self._create_file_selector(frame, 2, "Ficheiro mensagem/criptograma:", file_)
 
         # Área de resultado
         ttk.Label(frame, text="Resultado:", font=("Segoe UI", 10, "bold")).grid(row=3, column=0, sticky='w', pady=(15,5))
@@ -202,7 +202,7 @@ class CryptoApp:
         result_text = StringVar(value="Resultado aparecerá aqui...")
 
         self._create_file_selector(frame, 0, "Tabela PlayFair:", table)
-        self._create_file_selector(frame, 1, "Ficheiro da mensagem:", file_)
+        self._create_file_selector(frame, 1, "Ficheiro mensagem/criptograma:", file_)
 
         ttk.Label(frame, text="Resultado:", font=("Segoe UI", 10, "bold")).grid(row=2, column=0, sticky='w', pady=(15,5))
         result_entry = ttk.Entry(frame, textvariable=result_text, width=70, font=("Segoe UI", 9), state='readonly')
